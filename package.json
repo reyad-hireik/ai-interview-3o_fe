@@ -10,16 +10,17 @@
         "preview": "vite preview"
     },
     "dependencies": {
-        "axios": "^1.12.2",
         "@emotion/react": "^11.11.3",
         "@emotion/styled": "^11.11.0",
         "@mui/icons-material": "^5.15.10",
-        "react-router-dom": "^6.14.2",
         "@mui/material": "^5.15.10",
+        "axios": "^1.12.2",
+        "buffer": "^6.0.3",
         "convertupleads-theme": "^0.2.6",
+        "peerjs": "^1.5.5",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
-        "simple-peer": "^9.9.3",
+        "react-router-dom": "^6.14.2",
         "socket.io-client": "^4.7.0"
     },
     "devDependencies": {
@@ -27,6 +28,7 @@
         "@types/node": "^24.6.0",
         "@types/react": "^19.1.16",
         "@types/react-dom": "^19.1.9",
+        "@types/simple-peer": "^9.11.9",
         "@vitejs/plugin-react": "^5.0.4",
         "eslint": "^9.36.0",
         "eslint-plugin-react-hooks": "^5.2.0",
