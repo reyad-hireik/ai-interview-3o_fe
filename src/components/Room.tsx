@@ -35,16 +35,23 @@ export default function Room() {
 
     const addRemoteStream = (user: string, stream: MediaStream) => {
         if (userVideosRef.current[user]) return;
-        console.log('video #')
+        console.log('Adding remote video for:', user);
         const video = document.createElement("video");
+        const placeholderVideo = document.getElementById('placeholder-video');
         video.srcObject = stream;
         video.autoplay = true;
         video.playsInline = true;
+        video.style.width = "100%";
+        video.style.height = "100%";
+        video.style.objectFit = "cover";
+        video.style.borderRadius = "12px";
+        video.style.backgroundColor = "#1f1f1f";
 
         userVideosRef.current[user] = video;
 
         const container = document.getElementById("video-grid");
         container?.appendChild(video);
+        placeholderVideo!.innerHTML = user as string;
     };
 
     const callUser = (userId: string, stream: MediaStream) => {
@@ -162,27 +169,91 @@ export default function Room() {
 
             {/* Content Area */}
             <Box sx={{ display: "flex", flex: 1, overflow: "hidden" }}>
-                {/* Stage */}
-                <Box sx={{ flex: 1, p: 3, display: "flex", flexDirection: "column" }}>
-                    {/* Active Speaker Tile */}
-                    <video ref={myVideoRef} autoPlay playsInline muted style={{ height: '60%' }}></video>
-                    {/* <Box sx={{ flex: 1, borderRadius: 2, bgcolor: "grey.900", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-                        <Avatar size="large" sx={{ height: '80px', width: '80px' }} src={''}>{userName[0]}</Avatar>
-                        <Box sx={{ position: "absolute", bottom: 16, left: 16, display: "flex", alignItems: "center", gap: 1, px: 1.5, py: 0.75, borderRadius: 1, bgcolor: "rgba(0,0,0,0.5)", color: "common.white" }}>
-                            <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: muted ? "error.main" : "success.main" }} />
-                            <Box>{muted ? "Muted" : "Speaking"}</Box>
-                        </Box>
-                    </Box> */}
-
-                    {/* Thumbnails Row */}
-                    <Box id="video-grid"></Box>
-                    {/* <Box sx={{ mt: 2, display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: 1.5 }}>
-                        {[...Array.from(new Set(users))].slice(0, 6).map((id) => (
-                            <Box key={id} sx={{ aspectRatio: "16/10", borderRadius: 1.5, bgcolor: "grey.800", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                <Avatar size="large" sx={{ height: '30px', width: '30px' }} src="">{id[0]}</Avatar>
+                {/* Video Grid Stage */}
+                <Box sx={{ flex: 1, p: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <Box
+                        sx={{
+                            display: "grid",
+                            gap: 2,
+                            width: "100%",
+                            height: "100%",
+                            gridTemplateColumns: users.length === 0 ? "1fr" :
+                                users.length === 1 ? "repeat(2, 1fr)" :
+                                    users.length === 2 ? "repeat(2, 1fr)" :
+                                        users.length === 3 ? "repeat(2, 1fr)" :
+                                            users.length <= 6 ? "repeat(3, 1fr)" :
+                                                users.length <= 9 ? "repeat(3, 1fr)" :
+                                                    "repeat(4, 1fr)",
+                            gridTemplateRows: users.length === 0 ? "1fr" :
+                                users.length === 1 ? "1fr" :
+                                    users.length === 2 ? "1fr" :
+                                        users.length === 3 ? "repeat(2, 1fr)" :
+                                            users.length <= 6 ? "repeat(2, 1fr)" :
+                                                users.length <= 9 ? "repeat(3, 1fr)" :
+                                                    "repeat(3, 1fr)",
+                            maxWidth: "100%",
+                            maxHeight: "100%"
+                        }}
+                    >
+                        {/* My Video */}
+                        <Box
+                            sx={{
+                                position: "relative",
+                                borderRadius: 3,
+                                overflow: "hidden",
+                                bgcolor: "#1f1f1f",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                minHeight: 0
+                            }}
+                        >
+                            <video
+                                ref={myVideoRef}
+                                autoPlay
+                                playsInline
+                                muted
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover',
+                                    backgroundColor: '#1f1f1f'
+                                }}
+                            />
+                            <Box
+                                sx={{
+                                    position: "absolute",
+                                    bottom: 12,
+                                    left: 12,
+                                    px: 1.5,
+                                    py: 0.5,
+                                    borderRadius: 1,
+                                    bgcolor: "rgba(0,0,0,0.6)",
+                                    color: "white",
+                                    fontSize: 14,
+                                    fontWeight: 500,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 0.75
+                                }}
+                            >
+                                You
                             </Box>
-                        ))}
-                    </Box> */}
+                        </Box>
+
+                        {/* Other Users' Videos */}
+                        <Box
+                            id="video-grid"
+                            sx={{
+                                display: "contents",
+                                "& > video": {
+                                    position: "relative",
+                                    borderRadius: 3,
+                                    overflow: "hidden"
+                                }
+                            }}
+                        >                        </Box>
+                    </Box>
                 </Box>
 
                 {/* Sidebar */}
@@ -198,9 +269,9 @@ export default function Room() {
                                 <Box sx={{ width: 28, height: 28, borderRadius: "50%", bgcolor: "primary.light" }} />
                                 <Box sx={{ flex: 1 }}>
                                     <Box sx={{ fontSize: 14, fontWeight: 600 }}>{id === myUserId ? "You" : id}</Box>
-                                    <Box sx={{ fontSize: 12, color: "text.secondary" }}>{muted ? "Muted" : "On"}</Box>
+                                    <Box sx={{ fontSize: 12, color: "text.secondary" }}>Joined</Box>
                                 </Box>
-                                <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: muted ? "error.main" : "success.main" }} />
+                                <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: "success.main" }} />
                             </Box>
                         ))}
                     </Box>
