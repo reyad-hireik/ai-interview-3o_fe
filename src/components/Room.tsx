@@ -7,7 +7,7 @@ export default function Room() {
     const myUserIdRef = useRef<number>(10000 + Math.floor(Math.random() * 900000));
     const myUserId = myUserIdRef.current;
     const { roomId } = useParams<{ roomId: string }>();
-    const { myVideoRef, users, userName, leaveMeeting } = useWebRTC(roomId || '');
+    const { myVideoRef, users, userName, leaveMeeting, handleSpeakSofia } = useWebRTC(roomId || '');
     const [currentTime, setCurrentTime] = useState<string>(new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }));
 
     useEffect(() => {
@@ -22,11 +22,6 @@ export default function Room() {
             navigator.clipboard.writeText(roomId);
         }
     };
-
-    const handleSpeakSofia = () => {
-        const utterance = new SpeechSynthesisUtterance("Hello! I am Sofia, your virtual assistant. How can I help you today?");
-        speechSynthesis.speak(utterance);
-    }
 
     return (
         <Box sx={{ display: "flex", flexDirection: "column", height: "100vh", bgcolor: "background.default" }}>
@@ -44,7 +39,8 @@ export default function Room() {
                 </Box>
 
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                    <Button variant="tonal" sx={{display: 'none'}} onClick={handleSpeakSofia}>Sofia</Button>
+                    <audio id="sofia-audio" style={{ display: 'none' }} controls autoPlay />
+                    <Button variant="tonal" onClick={handleSpeakSofia}>Sofia</Button>
                     <Box sx={{ px: 2, py: 0.75, borderRadius: 1, bgcolor: "action.hover" }}>{currentTime}</Box>
                     <Box sx={{ px: 2, py: 0.75, borderRadius: 1, bgcolor: "action.hover" }}>{userName}</Box>
                     <Button onClick={leaveMeeting} color="error">Leave room</Button>

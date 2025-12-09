@@ -15,8 +15,95 @@ export default function useWebRTC(roomId: string) {
     const peerRef = useRef<Peer | null>(null);
     const peersRef = useRef<PeerMap>({});
     const userVideosRef = useRef<VideoMap>({});
+
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const mediaSourceRef = useRef<MediaSource | null>(null);
+    const urlRef = useRef<string | null>(null);
+    const abortRef = useRef<AbortController | null>(null);
+
     const [users, setUsers] = useState<string[]>([]);
     const [userName, setUserName] = useState<string>('');
+
+    const handleSpeakSofia = async () => {
+        const controller = new AbortController();
+        try {
+            const response = await fetch('http://localhost:3100/ai/text',
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        text: "hello sofia"
+                    }),
+                    signal: controller.signal,
+                }
+            );
+            let audio = audioRef.current;
+            if (!audio) {
+                audio = document.getElementById("sofia-audio") as HTMLAudioElement | null;
+                if (!audio) throw new Error("No <audio id='sofia-audio'> element found.");
+                audioRef.current = audio;
+            }
+
+            const mediaSource = new MediaSource();
+            mediaSourceRef.current = mediaSource;
+            const objectUrl = URL.createObjectURL(mediaSource);
+            urlRef.current = objectUrl;
+            audio.src = objectUrl;
+            const onAudioEnded = () => {
+                audio!.removeEventListener("ended", onAudioEnded);
+            };
+
+            audio.addEventListener("ended", onAudioEnded);
+            mediaSource.addEventListener("sourceopen", async () => {
+                const mimeType = "audio/mpeg";
+                const sourceBuffer = mediaSource.addSourceBuffer(mimeType);
+
+                const reader = response.body!.getReader();
+                let playbackStarted = false;
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    await new Promise<void>((resolve, reject) => {
+                        const onUpdate = () => {
+                            sourceBuffer.removeEventListener("updateend", onUpdate);
+                            resolve();
+                        };
+                        const onError = (ev: any) => {
+                            sourceBuffer.removeEventListener("error", onError);
+                            reject(ev);
+                        };
+                        sourceBuffer.addEventListener("updateend", onUpdate, { once: true });
+                        sourceBuffer.addEventListener("error", onError, { once: true });
+                        sourceBuffer.appendBuffer(value);
+                    });
+
+                    if (!playbackStarted) {
+                        playbackStarted = true;
+                        audio!.play().catch((e) =>
+                            console.warn("audio.play() error (likely autoplay block):", e)
+                        );
+                    }
+                }
+
+                if (mediaSource.readyState === "open") {
+                    mediaSource.endOfStream();
+                }
+            });
+
+            abortRef.current!.signal.addEventListener("abort", () => {
+                if (audio && !audio.paused) {
+                    audio.pause();
+                }
+            });
+            // Broadcast to all peers
+            // broadcastToPeers({  });
+
+        } catch (e) {
+            console.error("Error playing Sofia audio:", e);
+        }
+    };
 
     const leaveMeeting = () => {
         socket.disconnect();
@@ -173,6 +260,7 @@ export default function useWebRTC(roomId: string) {
         myVideoRef,
         users,
         userName,
-        leaveMeeting
+        leaveMeeting,
+        handleSpeakSofia
     };
 }
