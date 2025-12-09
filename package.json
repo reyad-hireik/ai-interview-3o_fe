@@ -15,7 +15,6 @@
         "@mui/icons-material": "^5.15.10",
         "@mui/material": "^5.15.10",
         "axios": "^1.12.2",
-        "buffer": "^6.0.3",
         "convertupleads-theme": "^0.2.6",
         "peerjs": "^1.5.5",
         "react": "^18.2.0",

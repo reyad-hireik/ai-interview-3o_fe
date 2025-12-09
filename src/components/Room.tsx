@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { socket } from "../socket";
-import { Avatar, Box, Button } from "convertupleads-theme";
+import { Avatar, Box, Button, CopyIcon, IconButton, Stack } from "convertupleads-theme";
 import Peer from "peerjs";
+import { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
+import { socket } from "../socket";
 
 type VideoMap = {
     [key: string]: HTMLVideoElement | null;
@@ -14,19 +14,28 @@ type PeerMap = {
 
 export default function Room() {
     const myUserIdRef = useRef<number>(10000 + Math.floor(Math.random() * 900000));
-    const { roomId } = useParams<{ roomId: string }>();
-    const [users, setUsers] = useState<string[]>([]);
-    const [stream, setStream] = useState<MediaStream | null>(null);
-    const [muted, setMuted] = useState<boolean>(true);
-    const [cameraOn, setCameraOn] = useState<boolean>(false);
-    const [screenSharing, setScreenSharing] = useState<boolean>(false);
-    const [userName, setUserName] = useState<string>('User#' + myUserIdRef.current);
-    const [chatOpen, setChatOpen] = useState<boolean>(false);
     const myUserId = myUserIdRef.current;
     const myVideoRef = useRef<HTMLVideoElement>(null);
     const peerRef = useRef<Peer | null>(null);
     const peersRef = useRef<PeerMap>({});
     const userVideosRef = useRef<VideoMap>({});
+    const { roomId } = useParams<{ roomId: string }>();
+    const [users, setUsers] = useState<string[]>([]);
+    const [userName, setUserName] = useState<string>('User-' + myUserIdRef.current);
+    const [currentTime, setCurrentTime] = useState<string>(new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }));
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentTime(new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }));
+        }, 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    const handleCopyRoomId = () => {
+        if (roomId) {
+            navigator.clipboard.writeText(roomId);
+        }
+    };
 
     const leaveMeeting = () => {
         socket.disconnect();
@@ -55,40 +64,45 @@ export default function Room() {
     };
 
     const callUser = (userId: string, stream: MediaStream) => {
-        if (!peerRef.current || !stream) return;
+        try {
+            if (!peerRef.current || !stream) return;
 
-        const call = peerRef.current.call(userId, stream);
+            const call = peerRef.current.call(userId, stream);
 
-        if (!call) {
-            console.error("Failed to create call to user:", userId);
-            return;
-        }
-
-        call.on("stream", (remoteStream) => {
-            addRemoteStream(userId, remoteStream);
-        });
-
-        call.on("close", () => {
-            if (userVideosRef.current[userId]) {
-                userVideosRef.current[userId]?.remove();
-                delete userVideosRef.current[userId];
+            if (!call) {
+                console.error("Failed to create call to user:", userId);
+                return;
             }
-        });
 
-        peersRef.current[userId] = call;
+            call.on("stream", (remoteStream) => {
+                addRemoteStream(userId, remoteStream);
+            });
+
+            call.on("close", () => {
+                if (userVideosRef.current[userId]) {
+                    userVideosRef.current[userId]?.remove();
+                    delete userVideosRef.current[userId];
+                }
+            });
+
+            peersRef.current[userId] = call;
+        } catch (error) {
+            console.error("Error calling user:", error);
+            alert("Error connecting to room. Please try again later.");
+            leaveMeeting();
+        }
     };
 
     useEffect(() => {
         if (!roomId) return;
         const start = async () => {
-            const newUserName = prompt("Enter your name:", userName ?? '') || userName;
+            const newUserName = prompt("Enter your name:") || userName;
             setUserName(newUserName);
 
             const userStream = await navigator.mediaDevices.getUserMedia({
                 video: true,
                 audio: true,
             });
-            setStream(userStream);
 
             if (myVideoRef.current) {
                 myVideoRef.current.srcObject = userStream;
@@ -123,7 +137,6 @@ export default function Room() {
                 callUser(userId, userStream);
             });
 
-            // ✅ User left → remove video
             socket.on("user-disconnected", (userId: string) => {
                 setUsers((prev) => prev.filter((id) => id !== userId));
 
@@ -138,8 +151,13 @@ export default function Room() {
                 }
             });
         };
-
-        start();
+        try {
+            start();
+        } catch (error) {
+            console.error("Error starting the room:", error);
+            alert("Can not access the room right now. Please try again later.");
+            leaveMeeting();
+        }
         return () => {
             socket.off("all-users");
             socket.off("user-connected");
@@ -153,15 +171,18 @@ export default function Room() {
             {/* Top Bar */}
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 3, py: 2, borderBottom: 1, borderColor: "divider" }}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                    <Box sx={{ width: 36, height: 36, borderRadius: "50%", bgcolor: "primary.main" }} />
+                    <Avatar size="large" sx={{ bgcolor: 'primary.main' }} src='https://www.freeiconspng.com/thumbs/meeting-icon/meeting-icon-png-presentation-icon-board-meeting-icon-meeting-icon--4.png' />
                     <Box sx={{ display: "flex", flexDirection: "column" }}>
                         <Box sx={{ fontWeight: 600 }}>Meeting</Box>
-                        <Box sx={{ color: "text.secondary", fontSize: 13 }}>ID: {roomId}</Box>
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                            <Box sx={{ color: "text.secondary", fontSize: 13 }}>ID: {roomId}</Box>
+                            <IconButton size="small" onClick={() => handleCopyRoomId()}><CopyIcon /></IconButton>
+                        </Stack>
                     </Box>
                 </Box>
 
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                    <Box sx={{ px: 2, py: 0.75, borderRadius: 1, bgcolor: "action.hover" }}>1:05 PM</Box>
+                    <Box sx={{ px: 2, py: 0.75, borderRadius: 1, bgcolor: "action.hover" }}>{currentTime}</Box>
                     <Box sx={{ px: 2, py: 0.75, borderRadius: 1, bgcolor: "action.hover" }}>{userName}</Box>
                     <Button onClick={leaveMeeting} color="error">Leave room</Button>
                 </Box>
@@ -245,19 +266,39 @@ export default function Room() {
                         <Box
                             id="video-grid"
                             sx={{
-                                display: "contents",
+                                // display: "contents",
+                                position: "relative",
                                 "& > video": {
-                                    position: "relative",
                                     borderRadius: 3,
                                     overflow: "hidden"
                                 }
                             }}
-                        >                        </Box>
+                        >
+                            <div
+                                id="placeholder-video"
+                                style={{
+                                    position: "absolute",
+                                    bottom: 12,
+                                    left: 12,
+                                    padding: '4px 8px',
+                                    borderRadius: '5px',
+                                    backgroundColor: "rgba(0,0,0,0.6)",
+                                    color: "white",
+                                    fontSize: 14,
+                                    fontWeight: 500,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 0.75
+                                }}
+                            >
+                                Waiting for others to join...
+                            </div>
+                        </Box>
                     </Box>
                 </Box>
 
                 {/* Sidebar */}
-                <Box sx={{ width: chatOpen ? 320 : 260, borderLeft: 1, borderColor: "divider", display: "flex", flexDirection: "column" }}>
+                <Box sx={{ width: 260, borderLeft: 1, borderColor: "divider", display: "flex", flexDirection: "column" }}>
                     <Box sx={{ px: 2, py: 1.5, borderBottom: 1, borderColor: "divider", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                         <Box sx={{ fontWeight: 600 }}>People ({[myUserId, ...Array.from(new Set(users))].length})</Box>
                         {/* <Button onClick={() => setChatOpen((v) => !v)} sx={{ px: 1.5, py: 0.5, borderRadius: 1, bgcolor: "action.hover", border: "none", cursor: "pointer" }}>{chatOpen ? "Close" : "Chat"}</Button> */}
@@ -266,7 +307,7 @@ export default function Room() {
                     <Box sx={{ p: 2, display: "flex", flexDirection: "column", gap: 1.25, overflowY: "auto" }}>
                         {[myUserId, ...Array.from(new Set(users))].map((id) => (
                             <Box key={id} sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
-                                <Box sx={{ width: 28, height: 28, borderRadius: "50%", bgcolor: "primary.light" }} />
+                                <Avatar size="medium" sx={{ bgcolor: `info.main` }} />
                                 <Box sx={{ flex: 1 }}>
                                     <Box sx={{ fontSize: 14, fontWeight: 600 }}>{id === myUserId ? "You" : id}</Box>
                                     <Box sx={{ fontSize: 12, color: "text.secondary" }}>Joined</Box>
@@ -276,7 +317,7 @@ export default function Room() {
                         ))}
                     </Box>
 
-                    {chatOpen && (
+                    {/* {chatOpen && (
                         <Box sx={{ borderTop: 1, borderColor: "divider", p: 2, display: "flex", flexDirection: "column", gap: 1 }}>
                             <Box sx={{ fontWeight: 600, mb: 1 }}>Chat</Box>
                             <Box sx={{ flex: 1, minHeight: 120, borderRadius: 1, bgcolor: "action.hover" }} />
@@ -285,7 +326,7 @@ export default function Room() {
                                 <Button sx={{ px: 2, borderRadius: 1, bgcolor: "primary.main", color: "primary.contrastText", border: "none", cursor: "pointer" }}>Send</Button>
                             </Box>
                         </Box>
-                    )}
+                    )} */}
                 </Box>
             </Box>
 

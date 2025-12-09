@@ -1,3 +1,4 @@
+import { AddIcon, Box, Button, TextField } from "convertupleads-theme";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 // import { v4 as uuidV4 } from "uuid";
@@ -17,19 +18,22 @@ export default function Home() {
     };
 
     return (
-        <div style={{ padding: 40 }}>
-            <h1>Video Meeting</h1>
+        <Box sx={{ padding: 4 }}>
+            <h1>Interview Meeting</h1>
 
-            <button onClick={createRoom}>Create New Room</button>
+            <Button onClick={createRoom} startIcon={<AddIcon />}>Create New Room</Button>
 
-            <div style={{ marginTop: 20 }}>
-                <input
+            <Box sx={{ marginTop: 4 }}>
+                <TextField
                     placeholder="Enter Room ID"
                     value={roomId}
                     onChange={(e) => setRoomId(e.target.value)}
+                    autoComplete="off"
                 />
-                <button onClick={joinRoom}>Join Room</button>
-            </div>
-        </div>
+                <br />
+                <br />
+                <Button variant="tonal" onClick={joinRoom}>Join Room</Button>
+            </Box>
+        </Box>
     );
 }
