@@ -30,7 +30,7 @@ export default function Room() {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                     <Avatar size="large" sx={{ bgcolor: 'primary.main' }} src='https://www.freeiconspng.com/thumbs/meeting-icon/meeting-icon-png-presentation-icon-board-meeting-icon-meeting-icon--4.png' />
                     <Box sx={{ display: "flex", flexDirection: "column" }}>
-                        <Box sx={{ fontWeight: 600 }}>Meeting Room</Box>
+                        <Box sx={{ fontWeight: 600 }}>Discushy Room</Box>
                         <Stack direction="row" alignItems="center" spacing={1}>
                             <Box sx={{ color: "text.secondary", fontSize: 13 }}>ID: {roomId}</Box>
                             <IconButton size="small" onClick={() => handleCopyRoomId()}><CopyIcon /></IconButton>

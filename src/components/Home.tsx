@@ -18,10 +18,12 @@ export default function Home() {
     };
 
     return (
-        <Box sx={{ padding: 4 }}>
-            <h1>Interview Meeting</h1>
-
-            <Button onClick={createRoom} startIcon={<AddIcon />}>Create New Room</Button>
+        <Box sx={{ padding: 4, height: "80vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+            <Box>
+                <h1>Discushy</h1>
+                <p>Start or join a discussion room</p>
+                <Button onClick={createRoom} startIcon={<AddIcon />}>Create New Room</Button>
+            </Box>
 
             <Box sx={{ marginTop: 4 }}>
                 <TextField
