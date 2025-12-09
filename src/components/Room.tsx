@@ -23,6 +23,11 @@ export default function Room() {
         }
     };
 
+    const handleSpeakSofia = () => {
+        const utterance = new SpeechSynthesisUtterance("Hello! I am Sofia, your virtual assistant. How can I help you today?");
+        speechSynthesis.speak(utterance);
+    }
+
     return (
         <Box sx={{ display: "flex", flexDirection: "column", height: "100vh", bgcolor: "background.default" }}>
             {/* Top Bar */}
@@ -33,12 +38,13 @@ export default function Room() {
                         <Box sx={{ fontWeight: 600 }}>Discushy Room</Box>
                         <Stack direction="row" alignItems="center" spacing={1}>
                             <Box sx={{ color: "text.secondary", fontSize: 13 }}>ID: {roomId}</Box>
-                            <IconButton size="small" onClick={() => handleCopyRoomId()}><CopyIcon /></IconButton>
+                            <IconButton size="small" onClick={handleCopyRoomId}><CopyIcon /></IconButton>
                         </Stack>
                     </Box>
                 </Box>
 
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <Button variant="tonal" sx={{display: 'none'}} onClick={handleSpeakSofia}>Sofia</Button>
                     <Box sx={{ px: 2, py: 0.75, borderRadius: 1, bgcolor: "action.hover" }}>{currentTime}</Box>
                     <Box sx={{ px: 2, py: 0.75, borderRadius: 1, bgcolor: "action.hover" }}>{userName}</Box>
                     <Button onClick={leaveMeeting} color="error">Leave room</Button>

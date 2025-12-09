@@ -1,4 +1,4 @@
-import { AddIcon, Box, Button, TextField } from "convertupleads-theme";
+import { AddIcon, Box, Button, Divider, TextField } from "convertupleads-theme";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 // import { v4 as uuidV4 } from "uuid";
@@ -35,6 +35,11 @@ export default function Home() {
                 <br />
                 <br />
                 <Button variant="tonal" onClick={joinRoom}>Join Room</Button>
+            </Box>
+
+            <Box sx={{ position: 'absolute', bottom: 16, width: '100%', textAlign: 'center' }}>
+                <Divider />
+                <p>Developed By <a href="https://beetcoder.com" target="_blank">BeetCoder</a></p>
             </Box>
         </Box>
     );
