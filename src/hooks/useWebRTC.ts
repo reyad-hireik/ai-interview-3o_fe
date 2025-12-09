@@ -93,7 +93,23 @@ export default function useWebRTC(roomId: string) {
                 myVideoRef.current.srcObject = userStream;
             }
 
-            const peer = new Peer(newUserName);
+            const peer = new Peer(newUserName, {
+                host: '0.peerjs.com',  // Use PeerJS cloud server
+                port: 443,
+                secure: true,
+                path: '/',
+                config: {
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' },
+                        {
+                            urls: 'turn:openrelay.metered.ca:80',
+                            username: 'openrelayproject',
+                            credential: 'openrelayproject'
+                        }
+                    ]
+                }
+            });
             peerRef.current = peer;
 
             peer.on("open", (user) => {
@@ -124,7 +140,7 @@ export default function useWebRTC(roomId: string) {
 
             socket.on("user-disconnected", (userId: string) => {
                 setUsers((prev) => prev.filter((id) => id !== userId));
-                
+
                 if (peersRef.current[userId]) {
                     peersRef.current[userId].close();
                     delete peersRef.current[userId];
