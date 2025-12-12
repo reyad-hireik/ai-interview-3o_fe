@@ -30,7 +30,7 @@ export default function Room() {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                     <Avatar size="large" sx={{ bgcolor: 'primary.main' }} src='https://www.freeiconspng.com/thumbs/meeting-icon/meeting-icon-png-presentation-icon-board-meeting-icon-meeting-icon--4.png' />
                     <Box sx={{ display: "flex", flexDirection: "column" }}>
-                        <Box sx={{ fontWeight: 600 }}>Discushy Room</Box>
+                        <Box sx={{ fontWeight: 600 }}>BT1 Interview Room</Box>
                         <Stack direction="row" alignItems="center" spacing={1}>
                             <Box sx={{ color: "text.secondary", fontSize: 13 }}>ID: {roomId}</Box>
                             <IconButton size="small" onClick={handleCopyRoomId}><CopyIcon /></IconButton>
@@ -40,7 +40,7 @@ export default function Room() {
 
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                     <audio id="sofia-audio" style={{ display: 'none' }} controls autoPlay />
-                    <Button variant="tonal" onClick={handleSpeakSofia}>Sofia</Button>
+                    {/* <Button variant="tonal" onClick={handleSpeakSofia}>Sofia</Button> */}
                     <Box sx={{ px: 2, py: 0.75, borderRadius: 1, bgcolor: "action.hover" }}>{currentTime}</Box>
                     <Box sx={{ px: 2, py: 0.75, borderRadius: 1, bgcolor: "action.hover" }}>{userName}</Box>
                     <Button onClick={leaveMeeting} color="error">Leave room</Button>
@@ -121,6 +121,88 @@ export default function Room() {
                             </Box>
                         </Box>
 
+                        {/* AI Assistant Avatar */}
+                        <Box
+                            sx={{
+                                position: "relative",
+                                borderRadius: 3,
+                                overflow: "hidden",
+                                bgcolor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                minHeight: 0,
+                                border: "2px solid",
+                                borderColor: "primary.main"
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    gap: 2,
+                                    p: 3
+                                }}
+                            >
+                                <Avatar
+                                    size="large"
+                                    sx={{
+                                        bgcolor: 'black',
+                                        width: 80,
+                                        height: 80,
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                                    }}
+                                    onClick={handleSpeakSofia}
+                                >S</Avatar>
+                                <Box
+                                    sx={{
+                                        color: "white",
+                                        fontSize: 18,
+                                        fontWeight: 600,
+                                        textAlign: "center",
+                                        textShadow: "0 2px 4px rgba(0,0,0,0.2)"
+                                    }}
+                                >
+                                    Sofia
+                                </Box>
+                            </Box>
+                            <Box
+                                sx={{
+                                    position: "absolute",
+                                    bottom: 12,
+                                    left: 12,
+                                    px: 1.5,
+                                    py: 0.5,
+                                    borderRadius: 1,
+                                    bgcolor: "rgba(0,0,0,0.6)",
+                                    color: "white",
+                                    fontSize: 14,
+                                    fontWeight: 500,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 0.75
+                                }}
+                            >
+                                <Box
+                                    sx={{
+                                        width: 8,
+                                        height: 8,
+                                        borderRadius: "50%",
+                                        bgcolor: "success.main",
+                                        animation: "pulse 2s ease-in-out infinite",
+                                        "@keyframes pulse": {
+                                            "0%, 100%": { opacity: 1 },
+                                            "50%": { opacity: 0.5 }
+                                        }
+                                    }}
+                                />
+                                Sofia
+                            </Box>
+                        </Box>
+
                         {/* Other Users' Videos */}
                         <Box
                             id="video-grid"
@@ -144,6 +226,14 @@ export default function Room() {
                     </Box>
 
                     <Box sx={{ p: 2, display: "flex", flexDirection: "column", gap: 1.25, overflowY: "auto" }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+                            <Avatar size="medium" sx={{ bgcolor: `info.main` }} />
+                            <Box sx={{ flex: 1 }}>
+                                <Box sx={{ fontSize: 14, fontWeight: 600 }}>Sofia</Box>
+                                <Box sx={{ fontSize: 12, color: "text.secondary" }}>Joined</Box>
+                            </Box>
+                            <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: "success.main" }} />
+                        </Box>
                         {[myUserId, ...Array.from(new Set(users))].map((id) => (
                             <Box key={id} sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
                                 <Avatar size="medium" sx={{ bgcolor: `info.main` }} />

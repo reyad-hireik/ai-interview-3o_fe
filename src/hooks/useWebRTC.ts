@@ -97,6 +97,7 @@ export default function useWebRTC(roomId: string) {
                     audio.pause();
                 }
             });
+            
             // Broadcast to all peers
             // broadcastToPeers({  });
 
@@ -169,11 +170,12 @@ export default function useWebRTC(roomId: string) {
         const start = async () => {
             const myUserIdRef = 10000 + Math.floor(Math.random() * 900000);
             const newUserName = prompt("Enter your name:") || `User-${myUserIdRef}`;
+            // const newUserName = `User-${myUserIdRef}`;
             setUserName(newUserName);
 
             const userStream = await navigator.mediaDevices.getUserMedia({
                 video: true,
-                audio: true,
+                audio: true
             });
 
             if (myVideoRef.current) {
@@ -181,7 +183,7 @@ export default function useWebRTC(roomId: string) {
             }
 
             const peer = new Peer(newUserName, {
-                host: '0.peerjs.com',  // Use PeerJS cloud server
+                host: '0.peerjs.com',
                 port: 443,
                 secure: true,
                 path: '/',
