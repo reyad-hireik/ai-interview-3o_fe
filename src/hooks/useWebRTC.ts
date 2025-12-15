@@ -196,10 +196,17 @@ export default function useWebRTC(roomId: string) {
             // const newUserName = `User-${myUserIdRef}`;
             setUserName(newUserName);
 
-            const userStream = await navigator.mediaDevices.getUserMedia({
-                video: true,
-                audio: true
-            });
+            let userStream: MediaStream;
+            try {
+                userStream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: true
+                });
+            } catch {
+                alert("We could not access both your camera and microphone. Please grant permission to both and try joining the meeting again.");
+                leaveMeeting();
+                return;
+            }
 
             streamRef.current = userStream;
 
