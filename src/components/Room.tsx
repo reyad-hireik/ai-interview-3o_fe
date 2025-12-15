@@ -29,17 +29,11 @@ export default function Room() {
             userName,
             text: `${userName}: ${text}.`
         }
-        console.log(payload);
-        if (!isMicOn) return;
         setTimeout(() => {
             unmute();
         }, 100);
-    }
-
-    const toggleMicrophone = () => {
-        if (!isMicOn) unmute();
-        console.log('isMicOn', isMicOn);
-        toggleMic();
+        if (!isMicOn) return;
+        console.log(payload);
     }
 
     useEffect(() => {
@@ -55,7 +49,7 @@ export default function Room() {
                 isCameraOn={isCameraOn}
                 isMicOn={isMicOn}
                 onToggleCamera={toggleCamera}
-                onToggleMic={toggleMicrophone}
+                onToggleMic={toggleMic}
             />
 
             {/* Content Area */}
