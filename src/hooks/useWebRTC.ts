@@ -15,6 +15,7 @@ export default function useWebRTC(roomId: string) {
     const peerRef = useRef<Peer | null>(null);
     const peersRef = useRef<PeerMap>({});
     const userVideosRef = useRef<VideoMap>({});
+    const streamRef = useRef<MediaStream | null>(null);
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const mediaSourceRef = useRef<MediaSource | null>(null);
@@ -23,6 +24,8 @@ export default function useWebRTC(roomId: string) {
 
     const [users, setUsers] = useState<string[]>([]);
     const [userName, setUserName] = useState<string>('');
+    const [isCameraOn, setIsCameraOn] = useState<boolean>(true);
+    const [isMicOn, setIsMicOn] = useState<boolean>(true);
 
     const handleSpeakSofia = async () => {
         const controller = new AbortController();
@@ -97,7 +100,7 @@ export default function useWebRTC(roomId: string) {
                     audio.pause();
                 }
             });
-            
+
             // Broadcast to all peers
             // broadcastToPeers({  });
 
@@ -109,6 +112,26 @@ export default function useWebRTC(roomId: string) {
     const leaveMeeting = () => {
         socket.disconnect();
         window.location.assign('/');
+    };
+
+    const toggleCamera = async () => {
+        if (streamRef.current) {
+            const videoTracks = streamRef.current.getVideoTracks();
+            videoTracks.forEach(track => {
+                track.enabled = !track.enabled;
+            });
+            setIsCameraOn(prev => !prev);
+        }
+    };
+
+    const toggleMic = () => {
+        if (streamRef.current) {
+            const audioTracks = streamRef.current.getAudioTracks();
+            audioTracks.forEach(track => {
+                track.enabled = !track.enabled;
+            });
+            setIsMicOn(prev => !prev);
+        }
     };
 
     const addRemoteStream = (user: string, stream: MediaStream) => {
@@ -177,6 +200,8 @@ export default function useWebRTC(roomId: string) {
                 video: true,
                 audio: true
             });
+
+            streamRef.current = userStream;
 
             if (myVideoRef.current) {
                 myVideoRef.current.srcObject = userStream;
@@ -263,6 +288,10 @@ export default function useWebRTC(roomId: string) {
         users,
         userName,
         leaveMeeting,
-        handleSpeakSofia
+        handleSpeakSofia,
+        toggleCamera,
+        toggleMic,
+        isCameraOn,
+        isMicOn
     };
 }

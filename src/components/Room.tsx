@@ -1,51 +1,49 @@
-import { Avatar, Box, Button, CopyIcon, IconButton, Stack } from "convertupleads-theme";
-import { useEffect, useRef, useState } from "react";
+import { Avatar, Box } from "convertupleads-theme";
+import { useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
+import { useSpeechRecognition } from "../hooks/useSpeechRecognition";
 import useWebRTC from "../hooks/useWebRTC";
+import RoomHeader from "./RoomHeader";
 
 export default function Room() {
     const myUserIdRef = useRef<number>(10000 + Math.floor(Math.random() * 900000));
     const myUserId = myUserIdRef.current;
     const { roomId } = useParams<{ roomId: string }>();
-    const { myVideoRef, users, userName, leaveMeeting, handleSpeakSofia } = useWebRTC(roomId || '');
-    const [currentTime, setCurrentTime] = useState<string>(new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }));
+    const {
+        myVideoRef,
+        users,
+        userName,
+        isCameraOn,
+        isMicOn,
+        toggleCamera,
+        toggleMic,
+    } = useWebRTC(roomId || '');
+    const { startListening, mute, unmute } = useSpeechRecognition();
+
+    const handleSTT = (text?: string) => {
+        mute();
+        console.log('stt #', text);
+        if (!isMicOn) return;
+        setTimeout(() => {
+            unmute();
+        }, 100);
+    }
 
     useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrentTime(new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }));
-        }, 1000);
-        return () => clearInterval(timer);
+        startListening(text => handleSTT(text));
     }, []);
-
-    const handleCopyRoomId = () => {
-        if (roomId) {
-            navigator.clipboard.writeText(roomId);
-        }
-    };
 
     return (
         <Box sx={{ display: "flex", flexDirection: "column", height: "100vh", bgcolor: "background.default" }}>
             {/* Top Bar */}
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 3, py: 2, borderBottom: 1, borderColor: "divider" }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                    <Avatar size="large" sx={{ bgcolor: 'primary.main' }} src='https://www.freeiconspng.com/thumbs/meeting-icon/meeting-icon-png-presentation-icon-board-meeting-icon-meeting-icon--4.png' />
-                    <Box sx={{ display: "flex", flexDirection: "column" }}>
-                        <Box sx={{ fontWeight: 600 }}>BT1 Interview Room</Box>
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                            <Box sx={{ color: "text.secondary", fontSize: 13 }}>ID: {roomId}</Box>
-                            <IconButton size="small" onClick={handleCopyRoomId}><CopyIcon /></IconButton>
-                        </Stack>
-                    </Box>
-                </Box>
-
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                    <audio id="sofia-audio" style={{ display: 'none' }} controls autoPlay />
-                    {/* <Button variant="tonal" onClick={handleSpeakSofia}>Sofia</Button> */}
-                    <Box sx={{ px: 2, py: 0.75, borderRadius: 1, bgcolor: "action.hover" }}>{currentTime}</Box>
-                    <Box sx={{ px: 2, py: 0.75, borderRadius: 1, bgcolor: "action.hover" }}>{userName}</Box>
-                    <Button onClick={leaveMeeting} color="error">Leave room</Button>
-                </Box>
-            </Box>
+            <RoomHeader
+                roomId={roomId as string}
+                userName={userName}
+                isCameraOn={isCameraOn}
+                isMicOn={isMicOn}
+                onToggleCamera={toggleCamera}
+                onToggleMic={toggleMic}
+            />
 
             {/* Content Area */}
             <Box sx={{ display: "flex", flex: 1, overflow: "hidden" }}>
@@ -122,7 +120,7 @@ export default function Room() {
                         </Box>
 
                         {/* AI Assistant Avatar */}
-                        <Box
+                        {/* <Box
                             sx={{
                                 position: "relative",
                                 borderRadius: 3,
@@ -201,7 +199,7 @@ export default function Room() {
                                 />
                                 Sofia
                             </Box>
-                        </Box>
+                        </Box> */}
 
                         {/* Other Users' Videos */}
                         <Box
@@ -258,15 +256,6 @@ export default function Room() {
                     )} */}
                 </Box>
             </Box>
-
-            {/* Footer Controls */}
-            {/* <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 2, py: 2, borderTop: 1, borderColor: "divider" }}>
-                <Button onClick={() => setMuted((m) => !m)}>{muted ? "Unmute" : "Mute"}</Button>
-                <Button onClick={handleCameraToggle}>{cameraOn ? "Stop video" : "Start video"}</Button>
-                <Button onClick={() => setScreenSharing((s) => !s)}>{screenSharing ? "Stop sharing" : "Present"}</Button>
-                <Button onClick={leaveMeeting} color="warning">Leave room</Button>
-                <Button onClick={() => setChatOpen((v) => !v)}>{chatOpen ? "Close chat" : "Chat"}</Button>
-            </Box> */}
         </Box>
     );
 }
