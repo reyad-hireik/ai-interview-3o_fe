@@ -17,16 +17,29 @@ export default function Room() {
         isMicOn,
         toggleCamera,
         toggleMic,
+        handleSpeakSofia
     } = useWebRTC(roomId || '');
     const { startListening, mute, unmute } = useSpeechRecognition();
+    // const [discussion, setDiscussion] = useState<string>('');
 
     const handleSTT = (text?: string) => {
         mute();
-        console.log('stt #', text);
+        const payload = {
+            roomId,
+            userName,
+            text: `${userName}: ${text}.`
+        }
+        console.log(payload);
         if (!isMicOn) return;
         setTimeout(() => {
             unmute();
         }, 100);
+    }
+
+    const toggleMicrophone = () => {
+        if (!isMicOn) unmute();
+        console.log('isMicOn', isMicOn);
+        toggleMic();
     }
 
     useEffect(() => {
@@ -42,7 +55,7 @@ export default function Room() {
                 isCameraOn={isCameraOn}
                 isMicOn={isMicOn}
                 onToggleCamera={toggleCamera}
-                onToggleMic={toggleMic}
+                onToggleMic={toggleMicrophone}
             />
 
             {/* Content Area */}
@@ -55,7 +68,7 @@ export default function Room() {
                             gap: 2,
                             width: "100%",
                             height: "100%",
-                            gridTemplateColumns: users.length === 0 ? "1fr" :
+                            gridTemplateColumns: users.length === 0 ? "repeat(2, 1fr)" :
                                 users.length === 1 ? "repeat(2, 1fr)" :
                                     users.length === 2 ? "repeat(2, 1fr)" :
                                         users.length === 3 ? "repeat(2, 1fr)" :
@@ -92,12 +105,36 @@ export default function Room() {
                                 playsInline
                                 muted
                                 style={{
+                                    display: isCameraOn ? 'block' : 'none',
                                     width: '100%',
                                     height: '100%',
                                     objectFit: 'cover',
                                     backgroundColor: '#1f1f1f'
                                 }}
                             />
+                            {!isCameraOn && (
+                                <Box
+                                    sx={{
+                                        width: '100%',
+                                        height: '100%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        bgcolor: '#1f1f1f'
+                                    }}
+                                >
+                                    <Avatar
+                                        size="large"
+                                        sx={{
+                                            bgcolor: 'primary.main',
+                                            width: 96,
+                                            height: 96,
+                                            fontSize: 36,
+                                            boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                                        }}
+                                    >{(userName || 'You').charAt(0).toUpperCase()}</Avatar>
+                                </Box>
+                            )}
                             <Box
                                 sx={{
                                     position: "absolute",
@@ -120,7 +157,7 @@ export default function Room() {
                         </Box>
 
                         {/* AI Assistant Avatar */}
-                        {/* <Box
+                        <Box
                             sx={{
                                 position: "relative",
                                 borderRadius: 3,
@@ -149,8 +186,9 @@ export default function Room() {
                                     size="large"
                                     sx={{
                                         bgcolor: 'black',
-                                        width: 80,
-                                        height: 80,
+                                        width: 96,
+                                        height: 96,
+                                        fontSize: 36,
                                         boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
                                     }}
                                     onClick={handleSpeakSofia}
@@ -199,7 +237,7 @@ export default function Room() {
                                 />
                                 Sofia
                             </Box>
-                        </Box> */}
+                        </Box>
 
                         {/* Other Users' Videos */}
                         <Box

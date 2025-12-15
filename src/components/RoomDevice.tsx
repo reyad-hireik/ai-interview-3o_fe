@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, ChevronDownIcon, MicrophoneOffSmallIcon, MicrophoneSmallIcon, VideoIcon, VideoOffIcon } from "convertupleads-theme"
+import { Button, ButtonGroup, MicrophoneOffSmallIcon, MicrophoneSmallIcon, VideoIcon, VideoOffIcon } from "convertupleads-theme";
 import { useRef } from "react";
 
 type RoomDeviceProps = {
@@ -22,10 +22,11 @@ const RoomDevice = ({ isCameraOn, isMicOn, onToggleCamera, onToggleMic }: RoomDe
                 <Button
                     variant={isCameraOn ? 'outlined' : 'contained'}
                     onClick={onToggleCamera}
+                    sx={{ width: '20px' }}
                 >
                     {isCameraOn ? <VideoIcon /> : <VideoOffIcon />}
                 </Button>
-                <Button
+                {/* <Button
                     size="small"
                     // aria-controls={open ? "split-button-menu" : undefined}
                     // aria-expanded={open ? "true" : undefined}
@@ -34,7 +35,7 @@ const RoomDevice = ({ isCameraOn, isMicOn, onToggleCamera, onToggleMic }: RoomDe
                 // onClick={handleToggle}
                 >
                     <ChevronDownIcon />
-                </Button>
+                </Button> */}
             </ButtonGroup>
             <ButtonGroup
                 variant="outlined"
@@ -45,10 +46,11 @@ const RoomDevice = ({ isCameraOn, isMicOn, onToggleCamera, onToggleMic }: RoomDe
                 <Button
                     variant={isMicOn ? 'outlined' : 'contained'}
                     onClick={onToggleMic}
+                    sx={{ width: '20px' }}
                 >
                     {isMicOn ? <MicrophoneSmallIcon /> : <MicrophoneOffSmallIcon />}
                 </Button>
-                <Button
+                {/* <Button
                     size="small"
                     // aria-controls={open ? "split-button-menu" : undefined}
                     // aria-expanded={open ? "true" : undefined}
@@ -57,7 +59,7 @@ const RoomDevice = ({ isCameraOn, isMicOn, onToggleCamera, onToggleMic }: RoomDe
                 // onClick={handleToggle}
                 >
                     <ChevronDownIcon />
-                </Button>
+                </Button> */}
             </ButtonGroup>
         </>
     )

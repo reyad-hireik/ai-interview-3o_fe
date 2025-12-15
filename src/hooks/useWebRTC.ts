@@ -203,7 +203,7 @@ export default function useWebRTC(roomId: string) {
                     audio: true
                 });
             } catch {
-                alert("We could not access both your camera and microphone. Please grant permission to both and try joining the meeting again.");
+                alert(`We could not access both your camera and microphone. Please grant permission to both and try joining the meeting again.`);
                 leaveMeeting();
                 return;
             }
