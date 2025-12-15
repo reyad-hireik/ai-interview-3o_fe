@@ -69,7 +69,6 @@ export const useSpeechRecognition = (lang: string = "en-US") => {
                             const allText = [...chunksRef.current, textRef.current].join(" ").trim();
                             if (!isEmpty(allText)) {
                                 if (callbackRef.current && allText) callbackRef.current(allText);
-                                console.log('api calling...', allText);
                                 chunksRef.current = [];
                                 textRef.current = "";
                                 finalAccumulatedRef.current = "";
