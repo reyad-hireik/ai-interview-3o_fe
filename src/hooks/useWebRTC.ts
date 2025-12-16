@@ -24,8 +24,8 @@ export default function useWebRTC(roomId: string) {
 
     const [users, setUsers] = useState<string[]>([]);
     const [userName, setUserName] = useState<string>('');
-    const [isCameraOn, setIsCameraOn] = useState<boolean>(true);
-    const [isMicOn, setIsMicOn] = useState<boolean>(true);
+    const isCameraOnRef = useRef<boolean>(true);
+    const isMicOnRef = useRef<boolean>(true);
 
     const handleSpeakSofia = async () => {
         const controller = new AbortController();
@@ -120,7 +120,7 @@ export default function useWebRTC(roomId: string) {
             videoTracks.forEach(track => {
                 track.enabled = !track.enabled;
             });
-            setIsCameraOn(prev => !prev);
+            isCameraOnRef.current = !isCameraOnRef.current;
         }
     };
 
@@ -130,7 +130,7 @@ export default function useWebRTC(roomId: string) {
             audioTracks.forEach(track => {
                 track.enabled = !track.enabled;
             });
-            setIsMicOn(prev => !prev);
+            isMicOnRef.current = !isMicOnRef.current;
         }
     };
 
@@ -298,7 +298,7 @@ export default function useWebRTC(roomId: string) {
         handleSpeakSofia,
         toggleCamera,
         toggleMic,
-        isCameraOn,
-        isMicOn
+        isCameraOn: isCameraOnRef.current,
+        isMicOn: isMicOnRef.current
     };
 }
