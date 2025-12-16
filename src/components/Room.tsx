@@ -19,15 +19,15 @@ export default function Room() {
         toggleMic,
         handleSpeakSofia
     } = useWebRTC(roomId || '');
-    const { startListening, mute, unmute } = useSpeechRecognition();
+    const { text, startListening, mute, unmute } = useSpeechRecognition();
     // const [discussion, setDiscussion] = useState<string>('');
 
-    const handleSTT = (text?: string) => {
+    const handleSTT = (userText?: string) => {
         mute();
         const payload = {
             roomId,
             userName,
-            text: `${userName}: ${text}.`
+            text: `${userName}: ${userText}.`
         }
         setTimeout(() => {
             unmute();
@@ -38,9 +38,13 @@ export default function Room() {
     }
 
     const toggleMicrophone = () => {
-        if (!isMicOn) unmute();
-        else mute();
-        console.log('isMicOn', isMicOn);
+        const payload = {
+            roomId,
+            userName,
+            text: `${userName}: ${text}.`
+        }
+        if (isMicOn)
+            console.log(payload);
         toggleMic();
     }
 
