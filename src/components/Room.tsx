@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { useSpeechRecognition } from "../hooks/useSpeechRecognition";
 import useWebRTC from "../hooks/useWebRTC";
 import RoomHeader from "./RoomHeader";
+import { isEmpty } from "../utils/core.utils";
 
 export default function Room() {
     const myUserIdRef = useRef<number>(10000 + Math.floor(Math.random() * 900000));
@@ -36,7 +37,7 @@ export default function Room() {
 
         // testing mic
         console.log('isMicOn #', isMicActive);
-        if (!isMicActive) return;
+        if (!isMicActive || isEmpty(userText)) return;
         console.log(payload);
     }
 
@@ -48,7 +49,7 @@ export default function Room() {
         }
         setIsMicActive(prev => !prev);
         toggleMic();
-        if (isMicActive)
+        if (isMicActive && !isEmpty(text))
             console.log(payload);
     }
 
