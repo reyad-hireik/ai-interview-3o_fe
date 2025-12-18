@@ -1,5 +1,5 @@
-import { Avatar, Box } from "convertupleads-theme";
-import { useEffect, useRef } from "react";
+import { Avatar, Box, Typography } from "convertupleads-theme";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSpeechRecognition } from "../hooks/useSpeechRecognition";
 import useWebRTC from "../hooks/useWebRTC";
@@ -20,6 +20,7 @@ export default function Room() {
         handleSpeakSofia
     } = useWebRTC(roomId || '');
     const { text, startListening, mute, unmute } = useSpeechRecognition();
+    const [isMicActive, setIsMicActive] = useState<boolean>(true);
     // const [discussion, setDiscussion] = useState<string>('');
 
     const handleSTT = (userText?: string) => {
@@ -32,8 +33,10 @@ export default function Room() {
         setTimeout(() => {
             unmute();
         }, 100);
-        console.log('isMicOn #', isMicOn);
-        if (!isMicOn) return;
+
+        // testing mic
+        console.log('isMicOn #', isMicActive);
+        if (!isMicActive) return;
         console.log(payload);
     }
 
@@ -43,14 +46,15 @@ export default function Room() {
             userName,
             text: `${userName}: ${text}.`
         }
-        if (isMicOn)
-            console.log(payload);
+        setIsMicActive(prev => !prev);
         toggleMic();
+        if (isMicActive)
+            console.log(payload);
     }
 
     useEffect(() => {
         startListening(text => handleSTT(text));
-    }, []);
+    }, [isMicActive]);
 
     return (
         <Box sx={{ display: "flex", flexDirection: "column", height: "100vh", bgcolor: "background.default" }}>
@@ -271,7 +275,9 @@ export default function Room() {
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
                             <Avatar size="medium" sx={{ bgcolor: `info.main` }} />
                             <Box sx={{ flex: 1 }}>
-                                <Box sx={{ fontSize: 14, fontWeight: 600 }}>Sofia</Box>
+                                <Box sx={{ fontSize: 14, fontWeight: 600 }}>
+                                    Sofia <Typography variant="caption" fontWeight={700} color={"GrayText"}>(AI)</Typography>
+                                </Box>
                                 <Box sx={{ fontSize: 12, color: "text.secondary" }}>Joined</Box>
                             </Box>
                             <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: "success.main" }} />
