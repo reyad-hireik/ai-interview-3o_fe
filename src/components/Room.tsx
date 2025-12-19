@@ -6,6 +6,11 @@ import useWebRTC from "../hooks/useWebRTC";
 import RoomHeader from "./RoomHeader";
 import { isEmpty } from "../utils/core.utils";
 
+export interface User {
+    userId: string;
+    userName: string;
+}
+
 export default function Room() {
     const myUserIdRef = useRef<number>(10000 + Math.floor(Math.random() * 900000));
     const myUserId = myUserIdRef.current;
@@ -56,7 +61,6 @@ export default function Room() {
     useEffect(() => {
         startListening(text => handleSTT(text));
     }, [isMicActive]);
-
     return (
         <Box sx={{ display: "flex", flexDirection: "column", height: "100vh", bgcolor: "background.default" }}>
             {/* Top Bar */}
@@ -283,11 +287,19 @@ export default function Room() {
                             </Box>
                             <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: "success.main" }} />
                         </Box>
-                        {[myUserId, ...Array.from(new Set(users))].map((id) => (
-                            <Box key={id} sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+                            <Avatar size="medium" sx={{ bgcolor: `info.main` }} />
+                            <Box sx={{ flex: 1 }}>
+                                <Box sx={{ fontSize: 14, fontWeight: 600 }}>You</Box>
+                                <Box sx={{ fontSize: 12, color: "text.secondary" }}>Joined</Box>
+                            </Box>
+                            <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: "success.main" }} />
+                        </Box>
+                        {[...Array.from(new Set(users))].map((user) => (
+                            <Box key={user.userId} sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
                                 <Avatar size="medium" sx={{ bgcolor: `info.main` }} />
                                 <Box sx={{ flex: 1 }}>
-                                    <Box sx={{ fontSize: 14, fontWeight: 600 }}>{id === myUserId ? "You" : id}</Box>
+                                    <Box sx={{ fontSize: 14, fontWeight: 600 }}>{user.userName}</Box>
                                     <Box sx={{ fontSize: 12, color: "text.secondary" }}>Joined</Box>
                                 </Box>
                                 <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: "success.main" }} />

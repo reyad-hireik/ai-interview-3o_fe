@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Peer from "peerjs";
 import { socket } from "../socket";
+import { User } from "../components/Room";
 
 type VideoMap = {
     [key: string]: HTMLVideoElement | null;
@@ -22,7 +23,7 @@ export default function useWebRTC(roomId: string) {
     const urlRef = useRef<string | null>(null);
     const abortRef = useRef<AbortController | null>(null);
 
-    const [users, setUsers] = useState<string[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
     const [userName, setUserName] = useState<string>('');
     const isCameraOnRef = useRef<boolean>(true);
     const isMicOnRef = useRef<boolean>(true);
@@ -134,9 +135,8 @@ export default function useWebRTC(roomId: string) {
         }
     };
 
-    const addRemoteStream = (user: string, stream: MediaStream) => {
-        if (userVideosRef.current[user]) return;
-        console.log('Adding remote video for:', user);
+    const addRemoteStream = (user: User, stream: MediaStream) => {
+        if (userVideosRef.current[user.userId]) return;
         const video = document.createElement("video");
         const placeholderVideo = document.getElementById('placeholder-video');
         video.srcObject = stream;
@@ -148,38 +148,37 @@ export default function useWebRTC(roomId: string) {
         video.style.borderRadius = "12px";
         video.style.backgroundColor = "#1f1f1f";
 
-        userVideosRef.current[user] = video;
+        userVideosRef.current[user.userId] = video;
 
         const container = document.getElementById("video-grid");
         container?.appendChild(video);
         if (placeholderVideo) {
-            placeholderVideo.innerHTML = user as string;
+            placeholderVideo.innerHTML = user.userName;
         }
     };
 
-    const callUser = (userId: string, stream: MediaStream) => {
+    const callUser = (user: User, stream: MediaStream) => {
         try {
             if (!peerRef.current || !stream) return;
 
-            const call = peerRef.current.call(userId, stream);
-
+            const call = peerRef.current.call(user.userId, stream);
             if (!call) {
-                console.error("Failed to create call to user:", userId);
+                console.error("Failed to create call to user:", user.userId);
                 return;
             }
 
             call.on("stream", (remoteStream) => {
-                addRemoteStream(userId, remoteStream);
+                addRemoteStream(user, remoteStream);
             });
 
             call.on("close", () => {
-                if (userVideosRef.current[userId]) {
-                    userVideosRef.current[userId]?.remove();
-                    delete userVideosRef.current[userId];
+                if (userVideosRef.current[user.userId]) {
+                    userVideosRef.current[user.userId]?.remove();
+                    delete userVideosRef.current[user.userId];
                 }
             });
 
-            peersRef.current[userId] = call;
+            peersRef.current[user.userId] = call;
         } catch (error) {
             console.error("Error calling user:", error);
             alert("Error connecting to room. Please try again later.");
@@ -193,6 +192,7 @@ export default function useWebRTC(roomId: string) {
         const start = async () => {
             const myUserIdRef = 10000 + Math.floor(Math.random() * 900000);
             const newUserName = prompt("Enter your name:") || `User-${myUserIdRef}`;
+            const myUserId = `user-${myUserIdRef}`;
             // const newUserName = `User-${myUserIdRef}`;
             setUserName(newUserName);
 
@@ -214,7 +214,7 @@ export default function useWebRTC(roomId: string) {
                 myVideoRef.current.srcObject = userStream;
             }
 
-            const peer = new Peer(newUserName, {
+            const peer = new Peer(myUserId, {
                 host: '0.peerjs.com',
                 port: 443,
                 secure: true,
@@ -233,43 +233,45 @@ export default function useWebRTC(roomId: string) {
             });
             peerRef.current = peer;
 
-            peer.on("open", (user) => {
-                socket.emit("join-room", roomId, user);
+            peer.on("open", (userId) => {
+                socket.emit("join-room", roomId, { userId, userName: newUserName });
             });
 
             peer.on("call", (call) => {
                 call.answer(userStream);
-
+                console.log('call #', call);
                 call.on("stream", (remoteStream) => {
-                    addRemoteStream(call.peer, remoteStream);
+                    addRemoteStream({ userId: call.peer, userName: "" }, remoteStream);
                 });
 
                 peersRef.current[call.peer] = call;
             });
 
-            socket.on("all-users", (existingUsers: string[]) => {
+            socket.on("all-users", (existingUsers: User[]) => {
                 setUsers(existingUsers);
-                existingUsers.forEach((userId) => {
-                    callUser(userId, userStream);
+                existingUsers.forEach((user) => {
+                    callUser(user, userStream);
                 });
             });
 
-            socket.on("user-connected", (userId: string) => {
-                setUsers((prev) => [...prev, userId]);
-                callUser(userId, userStream);
+            socket.on("user-connected", (user: User) => {
+                console.log('user-connected:', user);
+                setUsers((prev) => [...prev, user]);
+                callUser(user, userStream);
             });
 
-            socket.on("user-disconnected", (userId: string) => {
-                setUsers((prev) => prev.filter((id) => id !== userId));
+            socket.on("user-disconnected", (user: User) => {
+                console.log('user-disconnected:', user.userId);
+                setUsers((prev) => prev.filter((u) => user.userId !== u.userId));
 
-                if (peersRef.current[userId]) {
-                    peersRef.current[userId].close();
-                    delete peersRef.current[userId];
+                if (peersRef.current[user.userId]) {
+                    peersRef.current[user.userId].close();
+                    delete peersRef.current[user.userId];
                 }
 
-                if (userVideosRef.current[userId]) {
-                    userVideosRef.current[userId]?.remove();
-                    delete userVideosRef.current[userId];
+                if (userVideosRef.current[user.userId]) {
+                    userVideosRef.current[user.userId]?.remove();
+                    delete userVideosRef.current[user.userId];
                 }
             });
         };
