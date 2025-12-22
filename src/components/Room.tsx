@@ -21,6 +21,7 @@ export default function Room() {
         userName,
         isCameraOn,
         isMicOn,
+        endMeeting,
         toggleCamera,
         toggleMic,
         handleSpeakSofia
@@ -69,6 +70,7 @@ export default function Room() {
                 userName={userName}
                 isCameraOn={isCameraOn}
                 isMicOn={isMicOn}
+                onEndMeeting={endMeeting}
                 onToggleCamera={toggleCamera}
                 onToggleMic={toggleMicrophone}
             />
