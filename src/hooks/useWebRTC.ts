@@ -110,6 +110,12 @@ export default function useWebRTC(roomId: string) {
         }
     };
 
+    const endMeeting = () => {
+        console.log('meeting-ended');
+        socket.emit("end-meeting", roomId);
+        leaveMeeting();
+    };
+
     const leaveMeeting = () => {
         socket.disconnect();
         window.location.assign('/');
@@ -215,10 +221,10 @@ export default function useWebRTC(roomId: string) {
             }
 
             const peer = new Peer(myUserId, {
-                host: '0.peerjs.com',
-                port: 443,
-                secure: true,
-                path: '/',
+                host: '64.23.175.176',
+                port: 9000,
+                secure: false,
+                path: '/peerjs',
                 config: {
                     iceServers: [
                         { urls: 'stun:stun.l.google.com:19302' },
@@ -260,6 +266,11 @@ export default function useWebRTC(roomId: string) {
                 callUser(user, userStream);
             });
 
+            socket.on("meeting-ended", () => {
+                console.log('meeting-ended');
+                leaveMeeting();
+            });
+
             socket.on("user-disconnected", (user: User) => {
                 console.log('user-disconnected:', user.userId);
                 setUsers((prev) => prev.filter((u) => user.userId !== u.userId));
@@ -297,6 +308,7 @@ export default function useWebRTC(roomId: string) {
         users,
         userName,
         leaveMeeting,
+        endMeeting,
         handleSpeakSofia,
         toggleCamera,
         toggleMic,

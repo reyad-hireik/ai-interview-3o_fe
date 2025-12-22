@@ -10,11 +10,11 @@ interface IProps {
     isMicOn: boolean;
     onToggleCamera: () => void;
     onToggleMic: () => void;
+    onEndMeeting: () => void;
 }
 
-const RoomHeader = ({ roomId, userName, isCameraOn, isMicOn, onToggleCamera, onToggleMic }: IProps) => {
+const RoomHeader = ({ roomId, userName, isCameraOn, isMicOn, onToggleCamera, onToggleMic, onEndMeeting }: IProps) => {
     const [currentTime, setCurrentTime] = useState<string>(new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }));
-
 
     const leaveMeeting = () => {
         socket.disconnect();
@@ -57,6 +57,7 @@ const RoomHeader = ({ roomId, userName, isCameraOn, isMicOn, onToggleCamera, onT
                     onToggleCamera={onToggleCamera}
                     onToggleMic={onToggleMic}
                 />
+                <Button onClick={onEndMeeting} color="warning">End Meeting</Button>
                 <Button onClick={leaveMeeting} color="error">Leave room</Button>
             </Box>
         </Box>
