@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
 import Peer from "peerjs";
-import { socket } from "../socket";
+import { useEffect, useRef, useState } from "react";
 import { User } from "../components/Room";
+import { peerServerTest } from "../peer-server.config";
+import { socket } from "../socket";
 
 type VideoMap = {
     [key: string]: HTMLVideoElement | null;
@@ -220,34 +221,7 @@ export default function useWebRTC(roomId: string) {
                 myVideoRef.current.srcObject = userStream;
             }
 
-            const peer = new Peer(myUserId, {
-                host: '64.23.175.176',
-                port: 9000,
-                secure: false,
-                path: '/peerjs',
-                config: {
-                    iceServers: [
-                        {
-                            urls: [
-                                "stun:stun.cloudflare.com:3478",
-                                "stun:stun.cloudflare.com:53"
-                            ]
-                        },
-                        {
-                            urls: [
-                                "turn:turn.cloudflare.com:3478?transport=udp",
-                                "turn:turn.cloudflare.com:3478?transport=tcp",
-                                "turns:turn.cloudflare.com:5349?transport=tcp",
-                                "turn:turn.cloudflare.com:53?transport=udp",
-                                "turn:turn.cloudflare.com:80?transport=tcp",
-                                "turns:turn.cloudflare.com:443?transport=tcp"
-                            ],
-                            username: "g073965b8a81b91b99efc53dae7d5617a16e34931b8ecf107b6cb3fc4141ca0a",
-                            credential: "ba3944495053f1856e566d33123d2a34aeb7b366f5f2173391c88373b877cd23"
-                        }
-                    ]
-                }
-            });
+            const peer = new Peer(myUserId, peerServerTest);
             peerRef.current = peer;
 
             peer.on("open", (userId) => {
