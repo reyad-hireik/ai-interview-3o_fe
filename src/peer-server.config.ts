@@ -72,4 +72,4 @@ export const peerIceServerCloudFlare2 = {
     }
 }
 
-export const peerConfiguration = { ...peerServerBT1, ...peerIceServerCloudFlare };
+export const peerConfiguration = { ...peerServerBT1, ...peerIceServerCloudFlare2 };
