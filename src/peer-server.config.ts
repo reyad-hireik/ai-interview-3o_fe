@@ -1,5 +1,5 @@
 export const peerServerTest = {
-    host: 'peer.arkan360.ai',
+    host: 'peer-server-rn7x.onrender.com',
     port: 443,
     secure: true,
     path: '/peerjs',
@@ -35,9 +35,9 @@ export const peerServerGlobal = {
 }
 
 export const peerServerBT1 = {
-    host: '64.23.175.176',
-    port: 9000,
-    secure: false,
+    host: 'peer.arkan360.ai',
+    port: 443,
+    secure: true,
     path: '/peerjs',
     config: {
         iceServers: [
