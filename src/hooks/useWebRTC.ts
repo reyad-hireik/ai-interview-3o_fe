@@ -1,7 +1,7 @@
 import Peer from "peerjs";
 import { useEffect, useRef, useState } from "react";
 import { User } from "../components/Room";
-import { peerServerTest } from "../peer-server.config";
+import { peerServerBT1 } from "../peer-server.config";
 import { socket } from "../socket";
 
 type VideoMap = {
@@ -221,7 +221,7 @@ export default function useWebRTC(roomId: string) {
                 myVideoRef.current.srcObject = userStream;
             }
 
-            const peer = new Peer(myUserId, peerServerTest);
+            const peer = new Peer(myUserId, peerServerBT1);
             peerRef.current = peer;
 
             peer.on("open", (userId) => {

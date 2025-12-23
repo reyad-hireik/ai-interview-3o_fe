@@ -126,7 +126,8 @@ export default function Room() {
                                     width: '100%',
                                     height: '100%',
                                     objectFit: 'cover',
-                                    backgroundColor: '#1f1f1f'
+                                    backgroundColor: '#1f1f1f',
+                                    transform: 'scaleX(-1)'
                                 }}
                             />
                             {!isCameraOn && (
