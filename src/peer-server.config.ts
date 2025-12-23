@@ -1,5 +1,5 @@
 export const peerServerTest = {
-    host: 'peer-server-rn7x.onrender.com',
+    host: 'peer.arkan360.ai',
     port: 443,
     secure: true,
     path: '/peerjs',
