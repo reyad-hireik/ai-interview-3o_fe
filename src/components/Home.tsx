@@ -1,21 +1,37 @@
-import { AddIcon, Box, Button, Divider, FormLabel, TextField } from "convertupleads-theme";
+import { AddIcon, Box, Button, Divider, FormLabel, ModalWithHeader, TextField, Typography } from "convertupleads-theme";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-// import { v4 as uuidV4 } from "uuid";
+import JoinRoomModal from "./JoinRoomModal";
+import { toast } from "react-toastify";
+import { random6DigitCode } from "../utils/core.utils";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../state/store";
+import { setMeetingUserRole } from "../state/features/liveInterview/liveInterview.slice";
 
 export default function Home() {
+    const dispatch = useDispatch<AppDispatch>();
     const [roomId, setRoomId] = useState("");
-    const navigate = useNavigate();
+    const [openJoinModal, setOpenJoinModal] = useState<boolean>(false);
 
     const createRoom = () => {
-        const id = 10000 + Math.floor(Math.random() * 900000);
-        navigate(`/room/${id}`);
+        dispatch(setMeetingUserRole('host'));
+        setOpenJoinModal(true);
+        setRoomId(random6DigitCode());
     };
 
     const joinRoom = () => {
-        if (!roomId) return;
-        navigate(`/room/${roomId}`);
+        if (!roomId) {
+            toast.error('Please enter a room ID.');
+            return;
+        }
+        dispatch(setMeetingUserRole('member'));
+        setOpenJoinModal(true);
+        setRoomId(roomId);
     };
+
+    const handleCloseModal = () => {
+        setOpenJoinModal(false);
+        setRoomId("");
+    }
 
     return (
         <>
@@ -29,8 +45,8 @@ export default function Home() {
                 gap: 6
             }}>
                 <Box>
-                    <h1>Discushy</h1>
-                    <p>Start or join a discussion room</p>
+                    <img src={'/discushy_logo_banner.png'} alt="Logo" width={200} height={0} style={{ height: 'auto' }} />
+                    <Typography variant="body1" sx={{my: 1}}>Start or join a discussion room</Typography>
                     <Button onClick={createRoom} startIcon={<AddIcon />}>Create New Room</Button>
                 </Box>
 
@@ -53,6 +69,14 @@ export default function Home() {
                 <Divider />
                 <p>Developed By <a href="https://beetcoder.com" target="_blank">BeetCoder</a></p>
             </Box>
+
+            <ModalWithHeader
+                title='Join Room'
+                open={openJoinModal}
+                onClose={handleCloseModal}
+            >
+                <JoinRoomModal roomId={roomId} onClose={handleCloseModal} />
+            </ModalWithHeader>
         </>
     );
 }

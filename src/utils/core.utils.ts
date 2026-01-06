@@ -17,3 +17,30 @@ export const isEmpty = (value: any, omitArray: boolean = false) => {
 
     return false;
 };
+
+export const random6DigitCode = (): string => {
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const numbers = '0123456789';
+    let result = '';
+
+    // Add at least 2 letters
+    for (let i = 0; i < 2; i++) {
+        result += letters.charAt(Math.floor(Math.random() * letters.length));
+    }
+
+    // Add at least 2 numbers
+    for (let i = 0; i < 2; i++) {
+        result += numbers.charAt(Math.floor(Math.random() * numbers.length));
+    }
+
+    // Add 2 more random characters (letters or numbers)
+    const allChars = letters + numbers;
+    for (let i = 0; i < 2; i++) {
+        result += allChars.charAt(Math.floor(Math.random() * allChars.length));
+    }
+
+    // Shuffle the result
+    result = result.split('').sort(() => Math.random() - 0.5).join('');
+
+    return result;
+}
