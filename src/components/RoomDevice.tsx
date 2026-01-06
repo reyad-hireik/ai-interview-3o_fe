@@ -1,28 +1,42 @@
-import { Button, ButtonGroup, MicrophoneOffSmallIcon, MicrophoneSmallIcon, VideoIcon, VideoOffIcon } from "convertupleads-theme";
+import { Button, ButtonGroup, MicrophoneOffSmallIcon, MicrophoneSmallIcon, Tooltip, VideoIcon, VideoOffIcon } from "convertupleads-theme";
+import AirplayIcon from '@mui/icons-material/Airplay';
 import { useRef } from "react";
 
 type RoomDeviceProps = {
     isCameraOn: boolean;
     isMicOn: boolean;
+    isScreenSharing: boolean;
     onToggleCamera: () => void;
     onToggleMic: () => void;
+    onToggleScreenShare: () => void;
 };
 
-const RoomDevice = ({ isCameraOn, isMicOn, onToggleCamera, onToggleMic }: RoomDeviceProps) => {
+const RoomDevice = ({ isCameraOn, isMicOn, isScreenSharing, onToggleCamera, onToggleMic, onToggleScreenShare }: RoomDeviceProps) => {
     const anchorRef = useRef<HTMLDivElement | null>(null);
 
     return (
         <>
+            <Tooltip title={isScreenSharing ? "Stop Sharing" : "Share Screen"}>
+                <Button
+                    variant={!isScreenSharing ? 'outlined' : 'tonal'}
+                    color={!isScreenSharing ? 'primary' : 'error'}
+                    onClick={onToggleScreenShare}
+                    sx={{ width: '20px', height: '36px' }}
+                >
+                    <AirplayIcon />
+                </Button>
+            </Tooltip>
+
             <ButtonGroup
                 variant="outlined"
-                color={isCameraOn ? 'primary' : 'warning'}
+                color={isCameraOn ? 'primary' : 'error'}
                 ref={anchorRef}
                 aria-label="split button"
             >
                 <Button
-                    variant={isCameraOn ? 'outlined' : 'contained'}
+                    variant={isCameraOn ? 'outlined' : 'tonal'}
                     onClick={onToggleCamera}
-                    sx={{ width: '20px' }}
+                    sx={{ width: '20px', height: '36px' }}
                 >
                     {isCameraOn ? <VideoIcon /> : <VideoOffIcon />}
                 </Button>
@@ -39,14 +53,14 @@ const RoomDevice = ({ isCameraOn, isMicOn, onToggleCamera, onToggleMic }: RoomDe
             </ButtonGroup>
             <ButtonGroup
                 variant="outlined"
-                color={isMicOn ? 'primary' : 'warning'}
+                color={isMicOn ? 'primary' : 'error'}
                 ref={anchorRef}
                 aria-label="split button"
             >
                 <Button
-                    variant={isMicOn ? 'outlined' : 'contained'}
+                    variant={isMicOn ? 'outlined' : 'tonal'}
                     onClick={onToggleMic}
-                    sx={{ width: '20px' }}
+                    sx={{ width: '20px', height: '36px' }}
                 >
                     {isMicOn ? <MicrophoneSmallIcon /> : <MicrophoneOffSmallIcon />}
                 </Button>
